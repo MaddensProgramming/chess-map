@@ -1,0 +1,33 @@
+<app-filter></app-filter>
+<mat-table [dataSource]="calendar|async">
+  <ng-container matColumnDef="startDate">
+    <mat-header-cell *matHeaderCellDef>Start Date</mat-header-cell>
+    <mat-cell *matCellDef="let tournament">{{ tournament.startDate | date }}</mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="endDate">
+    <mat-header-cell *matHeaderCellDef>End Date</mat-header-cell>
+    <mat-cell *matCellDef="let tournament">{{ tournament.endDate ? (tournament.endDate | date)  : '-' }}</mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="eventName">
+    <mat-header-cell *matHeaderCellDef>Event Name</mat-header-cell>
+    <mat-cell *matCellDef="let tournament">{{ tournament.eventName }}</mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="city">
+    <mat-header-cell *matHeaderCellDef>City</mat-header-cell>
+    <mat-cell *matCellDef="let tournament">{{ tournament.city }}</mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="country">
+    <mat-header-cell *matHeaderCellDef>Country</mat-header-cell>
+    <mat-cell *matCellDef="let tournament">{{ tournament.country }}</mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="locationUrl">
+    <mat-header-cell *matHeaderCellDef>Location URL</mat-header-cell>
+    <mat-cell *matCellDef="let tournament"><a href="{{ tournament.locationUrl }}" target="_blank">{{ tournament.locationUrl }}</a></mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="sourceUrl">
+    <mat-header-cell *matHeaderCellDef>Source URL</mat-header-cell>
+    <mat-cell *matCellDef="let tournament"><a href="{{ tournament.sourceUrl }}" target="_blank">{{ tournament.sourceUrl }}</a></mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>

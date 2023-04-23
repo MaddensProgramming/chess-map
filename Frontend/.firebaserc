@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "chess-calendar-map"
+  },
+  "targets": {
+    "chess-calendar-map": {
+      "hosting": {
+        "chess-map": [
+          "chess-calendar-map"
+        ]
+      }
+    }
+  }
+}
