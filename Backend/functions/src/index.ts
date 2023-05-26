@@ -6,7 +6,7 @@ import axios from 'axios';
 
 const functions = require('firebase-functions');
 
-const uri =  process.env['uri']??'';
+const uri =  process.env['TEST']??'';
 // Define the Tournament interface
 export interface Tournament extends Document {
 	startDate: Date;
