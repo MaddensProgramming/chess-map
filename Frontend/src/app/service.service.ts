@@ -16,19 +16,19 @@ export class ServiceService {
   private baseUrl = 'http://localhost:3000/tournaments'
 
   public $tournaments: BehaviorSubject<Tournament[]>
-  =   new BehaviorSubject<Tournament[]>([]);
+    = new BehaviorSubject<Tournament[]>([]);
 
   public tournaments: Tournament[] = [];
 
   public filter = new FormGroup({
     startDate: new FormControl<Date | null>(null),
     endDate: new FormControl<Date | null>(null),
-    minLength:new FormControl<number|null>(1),
-    maxLength: new FormControl<number|null>(null),
-    maxDistance: new FormControl<number|null>(null)
+    minLength: new FormControl<number | null>(1),
+    maxLength: new FormControl<number | null>(null),
+    maxDistance: new FormControl<number | null>(null)
   });
   constructor(private http: HttpClient) {
-    this.generateMonths().subscribe(tourn => {this.tournaments = tourn; this.$tournaments.next(tourn)});
+    this.generateMonths().subscribe(tourn => { this.tournaments = tourn; this.$tournaments.next(tourn) });
 
   }
 
@@ -43,7 +43,7 @@ export class ServiceService {
     maxLength?: number,
     maxDistance?: number,
     coordinates?: { lat: number, lng: number }
-  ): void{
+  ): void {
     let params = new HttpParams();
     if (startDate) {
       params = params.set('startDate', startDate.toISOString());
@@ -62,8 +62,8 @@ export class ServiceService {
       params = params.set('coordinates', JSON.stringify(coordinates));
     }
 
-   this.http.get<Tournament[]>(this.baseUrl, { params })
-   .subscribe(tournaments => {this.tournaments = tournaments; this.$tournaments.next(tournaments);});
+    this.http.get<Tournament[]>(this.baseUrl, { params })
+      .subscribe(tournaments => { this.tournaments = tournaments; this.$tournaments.next(tournaments); });
   }
 
 
@@ -74,7 +74,7 @@ export class ServiceService {
 
 
   public generateMonths(): Observable<Tournament[]> {
-   return this.getHtmlFileAsString('assets/June.html')
+    return this.getHtmlFileAsString('assets/June.html')
       .pipe(
         map((file) => this.generateMonth(file))
       );
@@ -96,22 +96,22 @@ export class ServiceService {
       const endDate = endDateString
         ? parse(endDateString, 'dd.MM.yyyy', new Date())
         : null;
-      let eventName = latinize( $(el).find('.weblink').text().trim());
+      let eventName = latinize($(el).find('.weblink').text().trim());
       const city = $(el).find('.city').text().trim().substring(2);
       const country = $(el).find('.country').text().trim().substring(2);
       const sourceUrl = $(el).find('.source a').attr('href');
-      const locationUrl = $(el).find('.extensions a').attr('href')??null;
+      const locationUrl = $(el).find('.extensions a').attr('href') ?? null;
 
-      let lat=null;
-      let lng=null;
+      let lat = null;
+      let lng = null;
 
       let length = 1;
-      if(eventName.endsWith(" - ChessManager")){
-       eventName= eventName.replace(" - ChessManager","")
+      if (eventName.endsWith(" - ChessManager")) {
+        eventName = eventName.replace(" - ChessManager", "")
       }
 
-      if(endDate){
-        length = (endDate.getTime()-startDate.getTime())/(1000*3600*24);
+      if (endDate) {
+        length = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
       }
 
       if (locationUrl) {
@@ -125,26 +125,24 @@ export class ServiceService {
         eventName,
         city,
         country,
-        sourceUrl:[sourceUrl],
+        sourceUrl: [sourceUrl],
         locationUrl,
         length,
         lat,
         lng,
 
       };
-      if (!events.some((tournament) => tournament.eventName === newEvent.eventName))
-      {
-       events.push(newEvent);
+      if (!events.some((tournament) => tournament.eventName === newEvent.eventName)) {
+        events.push(newEvent);
       }
-      else
-      {
+      else {
 
-        const oldEvent = events.find((tournament) => tournament.eventName ===newEvent.eventName);
-        if(!oldEvent.sourceUrl.some(url => url===newEvent.sourceUrl[0])){
+        const oldEvent = events.find((tournament) => tournament.eventName === newEvent.eventName);
+        if (!oldEvent.sourceUrl.some(url => url === newEvent.sourceUrl[0])) {
           oldEvent.sourceUrl.push(newEvent.sourceUrl[0]);
         }
 
-        if(!oldEvent.locationUrl){
+        if (!oldEvent.locationUrl) {
           oldEvent.locationUrl = newEvent.locationUrl;
           oldEvent.lat = newEvent.lat;
           oldEvent.lng = newEvent.lng;
