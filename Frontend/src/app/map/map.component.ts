@@ -23,7 +23,7 @@ export class MapComponent implements AfterViewInit, OnInit {
     }).addTo(map);
 
     // Create an info window to share between markers.
-    const infoWindow = L.popup({maxWidth:5000});
+    const infoWindow = L.popup({ maxWidth: 5000 });
 
     this.service.$tournaments.subscribe((tournaments) => {
       const groupedTournaments = this.groupByLocation(tournaments);
@@ -31,7 +31,7 @@ export class MapComponent implements AfterViewInit, OnInit {
         if (
           locationUrl &&
           locationUrl !== 'undefined' &&
-          locationUrl!=='null' &&
+          locationUrl !== 'null' &&
           Object.prototype.hasOwnProperty.call(groupedTournaments, locationUrl)
         ) {
           const tournaments: Tournament[] = groupedTournaments[locationUrl];
@@ -49,20 +49,24 @@ export class MapComponent implements AfterViewInit, OnInit {
     });
   }
 
-  private generatePopup(tournaments: Tournament[]):string {
+  private generatePopup(tournaments: Tournament[]): string {
     let title = '';
     const groupedByDates = this.groupByDates(tournaments);
-    for (const date in groupedByDates){
-     const dateGroup = groupedByDates[date];
-     title += `<strong>${dateGroup[0].startDate.toDateString()}${dateGroup[0].endDate ? '-' + dateGroup[0].endDate.toDateString() : ''}</strong>`
-     dateGroup.forEach(tournament => {
-      title+=`<div>${tournament.eventName}`
-      for (let i = 0; i < tournament.sourceUrl.length; i++) {
-        title += `<sup><a href="${tournament.sourceUrl[i]}" target="_blank" rel="noopener noreferrer">[${i + 1}]</a></sup> `;
-      }
-      title += '</div>';
-     });
-     title+='<br>';
+    for (const date in groupedByDates) {
+      const dateGroup = groupedByDates[date];
+      title += `<strong>${dateGroup[0].startDate.toDateString()}${
+        dateGroup[0].endDate ? '-' + dateGroup[0].endDate.toDateString() : ''
+      }</strong>`;
+      dateGroup.forEach((tournament) => {
+        title += `<div>${tournament.eventName}`;
+        for (let i = 0; i < tournament.sourceUrl.length; i++) {
+          title += `<sup><a href="${
+            tournament.sourceUrl[i]
+          }" target="_blank" rel="noopener noreferrer">[${i + 1}]</a></sup> `;
+        }
+        title += '</div>';
+      });
+      title += '<br>';
     }
     return title;
   }
@@ -88,7 +92,11 @@ export class MapComponent implements AfterViewInit, OnInit {
   } {
     const groupedTournaments: { [key: string]: Tournament[] } =
       tournaments.reduce((acc, tournament) => {
-        const dateString = tournament.startDate.toDateString()+ tournament.endDate?.toDateString();
+        const dateString = tournament.startDate
+          ? tournament.startDate.toDateString()
+          : 'null' + tournament.endDate
+          ? tournament.endDate.toDateString()
+          : 'null';
         if (acc[dateString]) {
           acc[dateString].push(tournament);
         } else {

@@ -13,9 +13,6 @@ export class DataComponent {
   constructor(public service: ServiceService) {}
 
   upload(): void {
-    console.log("Uploading");
-    this.service.generateMonths()
-    .pipe(switchMap(tournaments => this.service.uploadTournaments(tournaments)))
-    .subscribe(logs => console.log(logs));
+    console.log('NOT Uploading');
   }
 }
