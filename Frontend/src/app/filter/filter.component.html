@@ -1,37 +1,86 @@
 <mat-card class="example-card">
-  <mat-card-header style="padding-top: 0;">
-    <div class="flex" style="width: 100%;" >
+  <mat-card-header style="padding-top: 0">
+    <div class="flex" style="width: 100%">
       <h3>Filter</h3>
-      <mat-icon style="margin:auto 0;" *ngIf="!expanded" fontIcon="expand_more" (click)="expanded=!expanded"></mat-icon>
-      <mat-icon style="margin:auto 0;" class="button"  *ngIf="expanded" fontIcon="expand_less" (click)="expanded=!expanded"></mat-icon>
+      <mat-icon
+        style="margin: auto 0"
+        *ngIf="!expanded"
+        fontIcon="expand_more"
+        (click)="expanded = !expanded"
+      ></mat-icon>
+      <mat-icon
+        style="margin: auto 0"
+        class="button"
+        *ngIf="expanded"
+        fontIcon="expand_less"
+        (click)="expanded = !expanded"
+      ></mat-icon>
     </div>
   </mat-card-header>
   <mat-card-content *ngIf="expanded" [formGroup]="filter">
     <mat-form-field>
       <mat-label>Enter a date range</mat-label>
-      <mat-date-range-input  [rangePicker]="picker">
-        <input matStartDate formControlName="startDate" placeholder="Start date">
-        <input matEndDate formControlName="endDate" placeholder="End date">
+      <mat-date-range-input [rangePicker]="picker">
+        <input
+          matStartDate
+          formControlName="startDate"
+          placeholder="Start date"
+        />
+        <input matEndDate formControlName="endDate" placeholder="End date" />
       </mat-date-range-input>
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
-      <mat-error *ngIf="filter.controls['startDate'].hasError('matStartDateInvalid')">Invalid start date</mat-error>
-      <mat-error *ngIf="filter.controls['endDate'].hasError('matEndDateInvalid')">Invalid end date</mat-error>
+      <mat-error
+        *ngIf="filter.controls['startDate'].hasError('matStartDateInvalid')"
+        >Invalid start date</mat-error
+      >
+      <mat-error
+        *ngIf="filter.controls['endDate'].hasError('matEndDateInvalid')"
+        >Invalid end date</mat-error
+      >
     </mat-form-field>
     <div class="flex-vertical">
-    <mat-form-field style="margin-right:1rem" >
-      <mat-label>Min length</mat-label>
-      <input  matInput formControlName="minLength" placeholder="Min length">
+      <mat-form-field style="margin-right: 1rem">
+        <mat-label>Min length</mat-label>
+        <input matInput formControlName="minLength" placeholder="Min length" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Max length</mat-label>
+        <input matInput formControlName="maxLength" placeholder="Max length" />
+      </mat-form-field>
+    </div>
+    <mat-form-field style="margin-right: 1rem">
+      <mat-label>Max distance</mat-label>
+      <input
+        matInput
+        formControlName="maxDistance"
+        placeholder="Max distance"
+      />
     </mat-form-field>
     <mat-form-field>
-      <mat-label>Max length</mat-label>
-      <input matInput formControlName="maxLength" placeholder="Max length">
+      <mat-label>Current location</mat-label>
+      <input formControlName="location" [readonly]="true" matInput />
     </mat-form-field>
-  </div>
-  <mat-form-field>
-    <mat-label>Max distance</mat-label>
-    <input matInput formControlName="maxDistance" placeholder="Max distance">
-  </mat-form-field>
-  <button style="width:210px; margin-left:1rem" mat-raised-button color="primary" (click)="updateTournaments();">Apply</button>
   </mat-card-content>
+  <mat-card-actions class="flex" style="justify-content: space-around">
+    <button
+      style="width: 150px; margin: auto 0"
+      mat-raised-button
+      color="primary"
+      (click)="updateTournaments()"
+    >
+      Apply
+    </button>
+    <button
+      style="width: 150px; margin: auto 0"
+      mat-raised-button
+      color="secondary"
+      (click)="updateTournaments()"
+    >
+      CLEAR
+    </button>
+  </mat-card-actions>
 </mat-card>

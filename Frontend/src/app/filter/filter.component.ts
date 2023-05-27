@@ -9,17 +9,14 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class FilterComponent implements OnInit {
   expanded = true;
-  //assigning here just to satisfy the typescript gods
-  filter: FormGroup = new FormGroup({
-    startDate: new FormControl<Date | null>(null),
-    endDate: new FormControl<Date | null>(null),
-    minLength: new FormControl<number | null>(1),
-    maxLength: new FormControl<number | null>(null),
-    maxDistance: new FormControl<number | null>(null),
-  });
+
+  filter: FormGroup;
   constructor(private service: ServiceService) {}
   ngOnInit(): void {
     this.filter = this.service.filter;
+    this.service
+      .getCurrentCityCountry()
+      .subscribe((result) => this.filter.get('location').setValue(result));
     this.updateTournaments();
   }
   updateTournaments(): void {
@@ -30,7 +27,7 @@ export class FilterComponent implements OnInit {
       this.filter.value.minLength,
       this.filter.value.maxLength,
       this.filter.value.maxDistance,
-      this.service.currentLocation
+      this.service.$currentLocation.getValue()
     );
   }
 }

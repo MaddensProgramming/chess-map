@@ -46,8 +46,8 @@ export class TournamentlistComponent implements OnInit, AfterViewInit {
                   lng: tournament.location.coordinates[0],
                 },
                 {
-                  lat: this.service.currentLocation[0],
-                  lng: this.service.currentLocation[1],
+                  lat: this.service.$currentLocation.getValue()[0],
+                  lng: this.service.$currentLocation.getValue()[1],
                 }
               ) / 1000
             );

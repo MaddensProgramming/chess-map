@@ -2,6 +2,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { Tournament } from '../models/tournament-model';
 import { ServiceService } from '../service.service';
+import { LatLngExpression } from 'leaflet';
 
 @Component({
   selector: 'app-map',
@@ -13,10 +14,14 @@ export class MapComponent implements AfterViewInit, OnInit {
   ngOnInit(): void {}
 
   public markers = [];
+  public currentLocationMarker: L.Marker<any>;
 
   ngAfterViewInit(): void {
     const mapDiv = document.getElementById('map');
-    const map = L.map(mapDiv).setView([50.8503, 4.35171], 7);
+    const map = L.map(mapDiv).setView(
+      this.service.$currentLocation.getValue() as LatLngExpression,
+      7
+    );
 
     // Add the OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -28,36 +33,69 @@ export class MapComponent implements AfterViewInit, OnInit {
     const infoWindow = L.popup({ maxWidth: 5000 });
 
     this.service.$tournaments.subscribe((tournaments) => {
-      // Remove existing markers
-      this.markers.forEach((marker) => marker.remove());
-      this.markers.length = 0; // Clear the markers array
+      this.addMarkers(tournaments, map, infoWindow);
+    });
+    this.addCurrentLocationIcon(map, infoWindow);
+  }
 
-      const groupedTournaments = this.groupByLocation(tournaments);
-      for (const locationUrl in groupedTournaments) {
-        if (
-          locationUrl &&
-          locationUrl != 'undefined' &&
-          locationUrl != 'null'
-        ) {
-          const tournaments: Tournament[] = groupedTournaments[locationUrl];
-          let title = this.generatePopup(tournaments);
-          const marker = L.marker(
-            [
-              tournaments[0].location.coordinates[1],
-              tournaments[0].location.coordinates[0],
-            ],
-            {
-              title: title,
-            }
-          ).addTo(map);
-          this.markers.push(marker);
-          marker.on('click', () => {
-            infoWindow.setLatLng(marker.getLatLng());
-            infoWindow.setContent(marker.options.title);
-            infoWindow.openOn(map);
-          });
-        }
+  private addMarkers(
+    tournaments: Tournament[],
+    map: L.Map,
+    infoWindow: L.Popup
+  ) {
+    this.markers.forEach((marker) => marker.remove());
+    this.markers.length = 0;
+
+    const groupedTournaments = this.groupByLocation(tournaments);
+    for (const locationUrl in groupedTournaments) {
+      if (locationUrl && locationUrl != 'undefined' && locationUrl != 'null') {
+        const tournaments: Tournament[] = groupedTournaments[locationUrl];
+        let title = this.generatePopup(tournaments);
+        const marker = L.marker(
+          [
+            tournaments[0].location.coordinates[1],
+            tournaments[0].location.coordinates[0],
+          ],
+          {
+            title: title,
+          }
+        ).addTo(map);
+        this.markers.push(marker);
+        marker.on('click', () => {
+          infoWindow.setLatLng(marker.getLatLng());
+          infoWindow.setContent(marker.options.title);
+          infoWindow.openOn(map);
+        });
       }
+    }
+  }
+
+  private addCurrentLocationIcon(map: L.Map, infoWindow: L.Popup) {
+    this.currentLocationMarker = L.marker(
+      this.service.$currentLocation.getValue() as LatLngExpression,
+      {
+        title: 'Your location',
+        draggable: true,
+        icon: L.icon({
+          iconUrl: 'assets/location.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+        }),
+      }
+    ).addTo(map);
+    this.currentLocationMarker.setZIndexOffset(1000);
+
+    this.currentLocationMarker.on('click', () => {
+      infoWindow.setLatLng(this.currentLocationMarker.getLatLng());
+      infoWindow.setContent(
+        '<div>Your location</div><div>Drag me around to change</div>'
+      );
+      infoWindow.openOn(map);
+    });
+
+    this.currentLocationMarker.on('dragend', () => {
+      const newLocation = this.currentLocationMarker.getLatLng();
+      this.service.$currentLocation.next([newLocation.lat, newLocation.lng]);
     });
   }
 
