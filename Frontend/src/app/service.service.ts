@@ -13,7 +13,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class ServiceService {
   private baseUrl =
-    'https://us-central1-chess-calendar-map.cloudfunctions.net/rest/tournaments';
+    'https://europe-west1-chess-calendar-map.cloudfunctions.net/rest/tournaments';
 
   public $tournaments: BehaviorSubject<Tournament[]> = new BehaviorSubject<
     Tournament[]
@@ -36,7 +36,7 @@ export class ServiceService {
     minLength?: number,
     maxLength?: number,
     maxDistance?: number,
-    coordinates?: { lat: number; lng: number }
+    coordinates?: number[]
   ): void {
     let params = new HttpParams();
     if (startDate) {
@@ -53,16 +53,17 @@ export class ServiceService {
     }
     if (maxDistance && coordinates) {
       params = params.set('maxDistance', maxDistance.toString());
-      params = params.set('coordinates', JSON.stringify(coordinates));
+      params = params.set('coordinates', `${coordinates[1]},${coordinates[0]}`);
     }
 
     this.http
       .get<Tournament[]>(this.baseUrl, { params })
       .subscribe((tournaments) => {
+        console.log(tournaments);
         this.tournaments = tournaments.map((tournament) => ({
           ...tournament,
           startDate: new Date(tournament.startDate),
-          endDate: new Date(tournament.endDate),
+          endDate: tournament.endDate ? new Date(tournament.endDate) : null,
         }));
         this.$tournaments.next(this.tournaments);
       });

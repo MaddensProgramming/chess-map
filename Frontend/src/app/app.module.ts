@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -29,7 +29,10 @@ import {
   UserTrackingService,
 } from '@angular/fire/analytics';
 import { provideFunctions, getFunctions } from '@angular/fire/functions';
+import { registerLocaleData } from '@angular/common';
+import localeNl from '@angular/common/locales/nl';
 
+registerLocaleData(localeNl);
 @NgModule({
   declarations: [
     AppComponent,
@@ -59,7 +62,11 @@ import { provideFunctions, getFunctions } from '@angular/fire/functions';
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFunctions(() => getFunctions()),
   ],
-  providers: [ScreenTrackingService, UserTrackingService],
+  providers: [
+    ScreenTrackingService,
+    UserTrackingService,
+    { provide: LOCALE_ID, useValue: 'nl' },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

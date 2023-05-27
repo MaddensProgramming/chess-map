@@ -12,6 +12,8 @@ export class MapComponent implements AfterViewInit, OnInit {
   constructor(private service: ServiceService) {}
   ngOnInit(): void {}
 
+  public markers = [];
+
   ngAfterViewInit(): void {
     const mapDiv = document.getElementById('map');
     const map = L.map(mapDiv).setView([50.8503, 4.35171], 7);
@@ -26,19 +28,29 @@ export class MapComponent implements AfterViewInit, OnInit {
     const infoWindow = L.popup({ maxWidth: 5000 });
 
     this.service.$tournaments.subscribe((tournaments) => {
+      // Remove existing markers
+      this.markers.forEach((marker) => marker.remove());
+      this.markers.length = 0; // Clear the markers array
+
       const groupedTournaments = this.groupByLocation(tournaments);
       for (const locationUrl in groupedTournaments) {
         if (
           locationUrl &&
-          locationUrl !== 'undefined' &&
-          locationUrl !== 'null' &&
-          Object.prototype.hasOwnProperty.call(groupedTournaments, locationUrl)
+          locationUrl != 'undefined' &&
+          locationUrl != 'null'
         ) {
           const tournaments: Tournament[] = groupedTournaments[locationUrl];
           let title = this.generatePopup(tournaments);
-          const marker = L.marker([tournaments[0].lat, tournaments[0].lng], {
-            title: title,
-          }).addTo(map);
+          const marker = L.marker(
+            [
+              tournaments[0].location.coordinates[1],
+              tournaments[0].location.coordinates[0],
+            ],
+            {
+              title: title,
+            }
+          ).addTo(map);
+          this.markers.push(marker);
           marker.on('click', () => {
             infoWindow.setLatLng(marker.getLatLng());
             infoWindow.setContent(marker.options.title);

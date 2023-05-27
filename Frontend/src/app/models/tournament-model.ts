@@ -7,11 +7,13 @@ export interface Tournament {
   locationUrl?: string;
   sourceUrl: string[];
   length: number;
-  lat?: number;
-  lng?: number;
- }
+  location?: {
+    type: string;
+    coordinates: number[];
+  };
+}
 
 export interface TournamentByLocation {
   locationUrl: string;
-  tournaments: Tournament[]
+  tournaments: Tournament[];
 }

@@ -19,8 +19,10 @@ export interface Tournament extends Document {
 	locationUrl?: string;
 	sourceUrl: string[];
 	length: number;
-	lat?: number;
-	lng?: number;
+	location?: {
+		type: string;
+		coordinates: number[];
+	};
 }
 
 // Connect to MongoDB
@@ -43,9 +45,25 @@ const tournamentSchema = new Schema<Tournament>({
 	locationUrl: { type: String },
 	sourceUrl: { type: [String], required: true },
 	length: { type: Number, required: true },
-	lat: { type: Number },
-	lng: { type: Number },
+	location: {
+		type: {
+			type: String,
+			enum: ["Point"], // Specify the type as Point
+			required: false,
+		},
+		coordinates: {
+			type: [Number], // Array of numbers [longitude, latitude]
+			required: false,
+		},
+	},
 });
+
+// Create indexes
+tournamentSchema.index({ eventName: 1 }); // Index on eventName field in ascending order
+tournamentSchema.index({ length: 1 }); // Index on length field in ascending order
+tournamentSchema.index({ startDate: 1 }); // Index on startDate field in ascending order
+tournamentSchema.index({ endDate: 1 }); // Index on endDate field in ascending order
+tournamentSchema.index({ location: "2dsphere" }); // Create a 2dsphere index on location field for geospatial queries
 
 // Create the Tournament model
 const TournamentModel = mongoose.model<Tournament>("Tournament", tournamentSchema);
@@ -97,12 +115,21 @@ app.get("/tournaments", async (req: Request, res: Response) => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const query: any = {};
 
-		if (startDate) {
-			query.startDate = { $gte: new Date(startDate as string) };
+		let tournaments: Tournament[] = [];
+
+		if (startDate && endDate) {
+			query.startDate = query.startDate = {
+				$gte: new Date(startDate as string),
+				$lte: new Date(endDate as string),
+			};
+		}
+
+		if (startDate && !endDate) {
+			query.startDate = query.startDate = { $gte: new Date(startDate as string) };
 		}
 
 		if (endDate) {
-			query.endDate = { $lte: new Date(endDate as string) };
+			query.$or = [{ endDate: null }, { endDate: { $lte: new Date(endDate as string) } }];
 		}
 
 		if (minLength) {
@@ -114,20 +141,26 @@ app.get("/tournaments", async (req: Request, res: Response) => {
 		}
 
 		if (maxDistance && coordinates) {
-			const { lat, lng } = JSON.parse(coordinates as string);
-			query.lat = {
-				$lte: lat + parseFloat(maxDistance as string) / 111,
-				$gte: lat - parseFloat(maxDistance as string) / 111,
-			};
-			query.lng = {
-				$lte: lng + parseFloat(maxDistance as string) / (111 * Math.cos(lat)),
-				$gte: lng - parseFloat(maxDistance as string) / (111 * Math.cos(lat)),
+			// find tournaments with no specified location
+			query.location = null;
+			tournaments = tournaments.concat(await TournamentModel.find(query));
+
+			const [longitude, latitude] = (coordinates as string).split(",").map(parseFloat);
+			query.location = {
+				$nearSphere: {
+					$geometry: {
+						type: "Point",
+						coordinates: [longitude, latitude],
+					},
+					$maxDistance: parseInt(maxDistance as string, 10) * 1000,
+				},
 			};
 		}
 
-		const tournaments = await TournamentModel.find(query);
+		tournaments = tournaments.concat(await TournamentModel.find(query));
 		res.status(200).json(tournaments);
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ error: "Failed to fetch tournaments" });
 	}
 });
@@ -193,11 +226,13 @@ function generateMonth(html: string): Tournament[] {
 		let eventName = latinize($(el).find(".weblink").text().trim());
 		const city = $(el).find(".city").text().trim().substring(2);
 		const country = $(el).find(".country").text().trim().substring(2);
-		const sourceUrl = $(el).find(".source a").attr("href");
+		let sourceUrl = $(el).find(".source a").attr("href");
 		const locationUrl = $(el).find(".extensions a").attr("href") ?? null;
 
-		let lat = null;
-		let lng = null;
+		// bugifxing urls from the weekinchess
+		if (sourceUrl) {
+			sourceUrl = sourceUrl.split("<td>")[0];
+		}
 
 		let length = 1;
 		if (eventName.endsWith(" - ChessManager")) {
@@ -205,14 +240,20 @@ function generateMonth(html: string): Tournament[] {
 		}
 
 		if (endDate) {
-			length = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
+			length += (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
 		}
+
+		let location;
 
 		if (locationUrl) {
 			const locationUrlParts = locationUrl.split("?q=")[1].split(",+");
-			lat = parseFloat(locationUrlParts[0]);
-			lng = parseFloat(locationUrlParts[1]);
+			const coordinates = [parseFloat(locationUrlParts[1]), parseFloat(locationUrlParts[0])];
+			location = {
+				type: "Point",
+				coordinates,
+			};
 		}
+
 		const newEvent = {
 			startDate,
 			endDate,
@@ -222,9 +263,9 @@ function generateMonth(html: string): Tournament[] {
 			sourceUrl: [sourceUrl],
 			locationUrl,
 			length,
-			lat,
-			lng,
+			location, // Assign the GeoJSON object to the location property
 		};
+
 		if (!events.some((tournament) => tournament.eventName === newEvent.eventName)) {
 			events.push(newEvent as Tournament);
 		} else {
@@ -235,8 +276,7 @@ function generateMonth(html: string): Tournament[] {
 
 			if (oldEvent && !oldEvent?.locationUrl) {
 				oldEvent.locationUrl = newEvent.locationUrl ?? undefined;
-				oldEvent.lat = newEvent.lat ?? undefined;
-				oldEvent.lng = newEvent.lng ?? undefined;
+				oldEvent.location = newEvent.location;
 			}
 		}
 	});
@@ -273,6 +313,6 @@ const runtimeOpts = {
 	timeoutSeconds: 540,
 	memory: "1GB" as const,
 };
-exports.scrape = functions.runWith(runtimeOpts).https.onRequest(scrape);
+exports.scrape = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(scrape);
 
-exports.rest = functions.https.onRequest(app);
+exports.rest = functions.region("europe-west1").https.onRequest(app);
