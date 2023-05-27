@@ -11,6 +11,7 @@ export interface Tournament {
     type: string;
     coordinates: number[];
   };
+  distance?: number;
 }
 
 export interface TournamentByLocation {

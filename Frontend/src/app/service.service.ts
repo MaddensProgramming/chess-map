@@ -28,6 +28,8 @@ export class ServiceService {
     maxLength: new FormControl<number | null>(null),
     maxDistance: new FormControl<number | null>(null),
   });
+
+  public currentLocation = [50.8503, 4.35171];
   constructor(private http: HttpClient) {}
 
   getTournaments(

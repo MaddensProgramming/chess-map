@@ -30,7 +30,7 @@ export class FilterComponent implements OnInit {
       this.filter.value.minLength,
       this.filter.value.maxLength,
       this.filter.value.maxDistance,
-      [50.8503, 4.35171]
+      this.service.currentLocation
     );
   }
 }

@@ -1,33 +1,65 @@
-<app-filter></app-filter>
-<mat-table [dataSource]="calendar|async">
-  <ng-container matColumnDef="startDate">
-    <mat-header-cell *matHeaderCellDef>Start Date</mat-header-cell>
-    <mat-cell *matCellDef="let tournament">{{ tournament.startDate | date }}</mat-cell>
-  </ng-container>
-  <ng-container matColumnDef="endDate">
-    <mat-header-cell *matHeaderCellDef>End Date</mat-header-cell>
-    <mat-cell *matCellDef="let tournament">{{ tournament.endDate ? (tournament.endDate | date)  : '-' }}</mat-cell>
-  </ng-container>
-  <ng-container matColumnDef="eventName">
-    <mat-header-cell *matHeaderCellDef>Event Name</mat-header-cell>
-    <mat-cell *matCellDef="let tournament">{{ tournament.eventName }}</mat-cell>
-  </ng-container>
-  <ng-container matColumnDef="city">
-    <mat-header-cell *matHeaderCellDef>City</mat-header-cell>
-    <mat-cell *matCellDef="let tournament">{{ tournament.city }}</mat-cell>
-  </ng-container>
-  <ng-container matColumnDef="country">
-    <mat-header-cell *matHeaderCellDef>Country</mat-header-cell>
-    <mat-cell *matCellDef="let tournament">{{ tournament.country }}</mat-cell>
-  </ng-container>
-  <ng-container matColumnDef="locationUrl">
-    <mat-header-cell *matHeaderCellDef>Location URL</mat-header-cell>
-    <mat-cell *matCellDef="let tournament"><a href="{{ tournament.locationUrl }}" target="_blank">{{ tournament.locationUrl }}</a></mat-cell>
-  </ng-container>
-  <ng-container matColumnDef="sourceUrl">
-    <mat-header-cell *matHeaderCellDef>Source URL</mat-header-cell>
-    <mat-cell *matCellDef="let tournament"><a href="{{ tournament.sourceUrl }}" target="_blank">{{ tournament.sourceUrl }}</a></mat-cell>
-  </ng-container>
-  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-</mat-table>
+<div style="margin: 1rem"><app-filter></app-filter></div>
+<div class="mat-elevation-z8" style="margin: 1rem">
+  <table
+    mat-table
+    [dataSource]="calendar | async"
+    matSort
+    class="mat-elevation-z8"
+  >
+    <ng-container matColumnDef="startDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Start Date</th>
+      <td mat-cell *matCellDef="let tournament">
+        {{ tournament.startDate | date }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="endDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>End Date</th>
+      <td mat-cell *matCellDef="let tournament">
+        {{ tournament.endDate ? (tournament.endDate | date) : "-" }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="eventName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Event</th>
+      <td mat-cell *matCellDef="let tournament">
+        <span>{{ tournament.eventName }}</span>
+        <ng-container *ngFor="let link of tournament.sourceUrl; let i = index">
+          <sup style="margin-left: 0.5rem"
+            ><a
+              href="{{ tournament.sourceUrl[i] }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              >[{{ i + 1 }}]
+            </a></sup
+          >
+        </ng-container>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="city">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Location</th>
+      <td mat-cell *matCellDef="let tournament">
+        <span>{{ tournament.city }}, {{ tournament.country }}</span>
+        <a
+          *ngIf="tournament.locationUrl"
+          href="{{ tournament.locationUrl }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          ><mat-icon fontIcon="location_on" [color]="'primary'"></mat-icon
+        ></a>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="distance">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Distance</th>
+      <td mat-cell *matCellDef="let tournament">
+        {{ tournament.distance }} km
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 20, 50, 100]"
+    showFirstLastButtons
+    aria-label="Select page of periodic elements"
+  >
+  </mat-paginator>
+</div>
