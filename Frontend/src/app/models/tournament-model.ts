@@ -1,3 +1,6 @@
+import { LatLngLiteral } from 'leaflet';
+import { LatLng } from 'leaflet';
+
 export interface Tournament {
   startDate: Date;
   endDate?: Date;
@@ -7,10 +10,7 @@ export interface Tournament {
   locationUrl?: string;
   sourceUrl: string[];
   length: number;
-  location?: {
-    type: string;
-    coordinates: number[];
-  };
+  location?: LatLngLiteral;
   distance?: number;
 }
 

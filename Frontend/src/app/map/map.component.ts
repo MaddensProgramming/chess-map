@@ -11,7 +11,16 @@ import { LatLngExpression } from 'leaflet';
 })
 export class MapComponent implements AfterViewInit, OnInit {
   constructor(private service: ServiceService) {}
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.service.$currentLocation.subscribe((location) => {
+      if (
+        this.currentLocationMarker &&
+        this.currentLocationMarker.getLatLng() !== location
+      ) {
+        this.currentLocationMarker.setLatLng(location);
+      }
+    });
+  }
 
   public markers = [];
   public currentLocationMarker: L.Marker<any>;
@@ -52,18 +61,17 @@ export class MapComponent implements AfterViewInit, OnInit {
         const tournaments: Tournament[] = groupedTournaments[locationUrl];
         let title = this.generatePopup(tournaments);
         const marker = L.marker(
-          [
-            tournaments[0].location.coordinates[1],
-            tournaments[0].location.coordinates[0],
-          ],
+          [tournaments[0].location.lat, tournaments[0].location.lng],
           {
-            title: title,
+            title: `${tournaments.length} tournament${
+              tournaments.length > 1 ? 's' : ''
+            }`,
           }
         ).addTo(map);
         this.markers.push(marker);
         marker.on('click', () => {
           infoWindow.setLatLng(marker.getLatLng());
-          infoWindow.setContent(marker.options.title);
+          infoWindow.setContent(title);
           infoWindow.openOn(map);
         });
       }
@@ -95,7 +103,7 @@ export class MapComponent implements AfterViewInit, OnInit {
 
     this.currentLocationMarker.on('dragend', () => {
       const newLocation = this.currentLocationMarker.getLatLng();
-      this.service.$currentLocation.next([newLocation.lat, newLocation.lng]);
+      this.service.$currentLocation.next(newLocation);
     });
   }
 

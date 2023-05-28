@@ -6,6 +6,7 @@ import { Observable, map, switchMap, tap } from 'rxjs';
 import { Tournament } from './models/tournament-model';
 import { BehaviorSubject } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
+import { LatLngLiteral } from 'leaflet';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +41,10 @@ export class ServiceService {
     location: new FormControl<string | null>(null),
   });
 
-  public $currentLocation = new BehaviorSubject<number[]>([50.8503, 4.35171]);
+  public $currentLocation = new BehaviorSubject<LatLngLiteral>({
+    lat: 50.8503,
+    lng: 4.35171,
+  });
 
   getCurrentCityCountry(): Observable<string> {
     const url = 'https://nominatim.openstreetmap.org/reverse';
@@ -48,8 +52,8 @@ export class ServiceService {
       switchMap((coords) => {
         let params = new HttpParams();
         params = params.set('format', 'json');
-        params = params.set('lat', coords[0]);
-        params = params.set('lon', coords[1]);
+        params = params.set('lat', coords.lat);
+        params = params.set('lon', coords.lng);
         return this.http.get<any>(url, { params }).pipe(
           map((result) => {
             if (result.address) {
@@ -72,7 +76,7 @@ export class ServiceService {
     minLength?: number,
     maxLength?: number,
     maxDistance?: number,
-    coordinates?: number[]
+    coordinates?: LatLngLiteral
   ): void {
     let params = new HttpParams();
     if (startDate) {
@@ -89,18 +93,30 @@ export class ServiceService {
     }
     if (maxDistance && coordinates) {
       params = params.set('maxDistance', maxDistance.toString());
-      params = params.set('coordinates', `${coordinates[1]},${coordinates[0]}`);
+      params = params.set(
+        'coordinates',
+        `${coordinates.lng},${coordinates.lat}`
+      );
     }
 
-    this.http
-      .get<Tournament[]>(this.baseUrl, { params })
-      .subscribe((tournaments) => {
-        this.tournaments = tournaments.map((tournament) => ({
-          ...tournament,
-          startDate: new Date(tournament.startDate),
-          endDate: tournament.endDate ? new Date(tournament.endDate) : null,
-        }));
-        this.$tournaments.next(this.tournaments);
-      });
+    this.http.get<any[]>(this.baseUrl, { params }).subscribe((tournaments) => {
+      this.tournaments = tournaments.map((tournament) => ({
+        ...tournament,
+        startDate: new Date(tournament.startDate),
+        endDate: tournament.endDate ? new Date(tournament.endDate) : null,
+        location: tournament.location
+          ? {
+              lat: tournament.location.coordinates[1],
+              lng: tournament.location.coordinates[0],
+            }
+          : null,
+      }));
+      this.$tournaments.next(this.tournaments);
+    });
+  }
+
+  getLocationBasedOnIp(): Observable<{ lat: number; lon: number }> {
+    const url = 'http://ip-api.com/json';
+    return this.http.get<{ lat: number; lon: number }>(url);
   }
 }

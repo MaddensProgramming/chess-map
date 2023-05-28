@@ -29,4 +29,9 @@ export class FilterComponent implements OnInit {
       this.service.$currentLocation.getValue()
     );
   }
+
+  clearFilter() {
+    const locationValue = this.filter.get('location')?.value;
+    this.filter.reset({ location: locationValue });
+  }
 }

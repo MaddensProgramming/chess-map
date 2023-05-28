@@ -41,14 +41,8 @@ export class TournamentlistComponent implements OnInit, AfterViewInit {
           if (tournament.location)
             tournament.distance = Math.round(
               haversine(
-                {
-                  lat: tournament.location.coordinates[1],
-                  lng: tournament.location.coordinates[0],
-                },
-                {
-                  lat: this.service.$currentLocation.getValue()[0],
-                  lng: this.service.$currentLocation.getValue()[1],
-                }
+                tournament.location,
+                this.service.$currentLocation.getValue()
               ) / 1000
             );
           return tournament;
