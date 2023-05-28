@@ -116,7 +116,7 @@ export class ServiceService {
   }
 
   getLocationBasedOnIp(): Observable<{ lat: number; lon: number }> {
-    const url = 'http://ip-api.com/json';
+    const url = 'https://ip-api.com/json';
     return this.http.get<{ lat: number; lon: number }>(url);
   }
 }
