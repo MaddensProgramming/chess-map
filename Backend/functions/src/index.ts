@@ -168,7 +168,7 @@ app.get("/tournaments", async (req: Request, res: Response) => {
 const scrape = async () => {
 	getAllTournaments()
 		.then(async (tournaments) => {
-			console.log(tournaments.length + "tournaments found");
+			console.log(tournaments.length + " tournaments found");
 			let added = 0;
 			let updated = 0;
 

@@ -23,7 +23,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DataComponent } from './data/data.component';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import {
@@ -32,16 +31,15 @@ import {
 } from '@angular/fire/analytics';
 import { provideFunctions, getFunctions } from '@angular/fire/functions';
 import { registerLocaleData } from '@angular/common';
-import localeNl from '@angular/common/locales/nl';
+import localeGb from '@angular/common/locales/en-GB';
 
-registerLocaleData(localeNl);
+registerLocaleData(localeGb);
 @NgModule({
   declarations: [
     AppComponent,
     TournamentlistComponent,
     MapComponent,
     FilterComponent,
-    DataComponent,
   ],
   imports: [
     BrowserModule,
@@ -69,7 +67,7 @@ registerLocaleData(localeNl);
   providers: [
     ScreenTrackingService,
     UserTrackingService,
-    { provide: LOCALE_ID, useValue: 'nl' },
+    { provide: LOCALE_ID, useValue: 'en-GB' },
   ],
   bootstrap: [AppComponent],
 })

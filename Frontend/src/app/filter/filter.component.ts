@@ -20,7 +20,6 @@ export class FilterComponent implements OnInit {
     this.updateTournaments();
   }
   updateTournaments(): void {
-    console.log('Loading tournaments');
     this.service.getTournaments(
       this.filter.value.startDate,
       this.filter.value.endDate,

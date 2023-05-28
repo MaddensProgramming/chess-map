@@ -65,7 +65,11 @@
       <input formControlName="location" [readonly]="true" matInput />
     </mat-form-field>
   </mat-card-content>
-  <mat-card-actions class="flex" style="justify-content: space-around">
+  <mat-card-actions
+    *ngIf="expanded"
+    class="flex"
+    style="justify-content: space-around"
+  >
     <button
       style="width: 150px; margin: auto 0"
       mat-raised-button

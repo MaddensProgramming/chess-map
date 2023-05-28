@@ -4,7 +4,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, switchMap, tap } from 'rxjs';
 
 import { Tournament } from './models/tournament-model';
-import { parse } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -15,18 +14,27 @@ export class ServiceService {
   private baseUrl =
     'https://europe-west1-chess-calendar-map.cloudfunctions.net/rest/tournaments';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.oneMonthLater = new Date();
+    this.oneMonthLater.setMonth(this.oneMonthLater.getMonth() + 1);
+  }
 
   public $tournaments: BehaviorSubject<Tournament[]> = new BehaviorSubject<
     Tournament[]
   >([]);
 
   public tournaments: Tournament[] = [];
+  public today: Date = new Date();
+  public oneMonthLater = new Date(
+    this.today.getFullYear(),
+    this.today.getMonth() + 1,
+    this.today.getDate()
+  );
 
   public filter = new FormGroup({
-    startDate: new FormControl<Date | null>(new Date(2023, 5, 1)),
-    endDate: new FormControl<Date | null>(new Date(2023, 6, 1)),
-    minLength: new FormControl<number | null>(1),
+    startDate: new FormControl<Date | null>(new Date()),
+    endDate: new FormControl<Date | null>(this.oneMonthLater),
+    minLength: new FormControl<number | null>(null),
     maxLength: new FormControl<number | null>(null),
     maxDistance: new FormControl<number | null>(null),
     location: new FormControl<string | null>(null),
@@ -40,10 +48,9 @@ export class ServiceService {
       switchMap((coords) => {
         let params = new HttpParams();
         params = params.set('format', 'json');
-        params = params.set('lat', this.$currentLocation.getValue()[0]);
-        params = params.set('lon', this.$currentLocation.getValue()[1]);
+        params = params.set('lat', coords[0]);
+        params = params.set('lon', coords[1]);
         return this.http.get<any>(url, { params }).pipe(
-          tap((result) => console.log(result)),
           map((result) => {
             if (result.address) {
               const town =
