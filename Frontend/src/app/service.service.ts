@@ -37,7 +37,7 @@ export class ServiceService {
     endDate: new FormControl<Date | null>(this.oneMonthLater),
     minLength: new FormControl<number | null>(null),
     maxLength: new FormControl<number | null>(null),
-    maxDistance: new FormControl<number | null>(null),
+    maxDistance: new FormControl<number | null>(500),
     location: new FormControl<string | null>(null),
   });
 
@@ -67,6 +67,17 @@ export class ServiceService {
           })
         );
       })
+    );
+  }
+
+  getTournamentNoParmaters(): void {
+    this.getTournaments(
+      this.filter.value.startDate,
+      this.filter.value.endDate,
+      this.filter.value.minLength,
+      this.filter.value.maxLength,
+      this.filter.value.maxDistance,
+      this.$currentLocation.getValue()
     );
   }
 

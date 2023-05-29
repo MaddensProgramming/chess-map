@@ -8,10 +8,14 @@ const routes: Routes = [
   {
     path: 'tournamentlist',
     component: TournamentlistComponent,
-    data: { title: 'Tournamentlist' },
+    data: { title: 'Chess Tournamentlist' },
   },
-  { path: 'map', component: MapComponent, data: { title: 'Map' } },
-  { path: '', component: WelcomeComponent, data: { title: 'Welcome' } },
+  { path: 'map', component: MapComponent, data: { title: 'Chess Map' } },
+  {
+    path: '',
+    component: WelcomeComponent,
+    data: { title: 'Chess tournament calendar map' },
+  },
   { path: '**', redirectTo: '', data: { title: 'Not Found' } },
 ];
 

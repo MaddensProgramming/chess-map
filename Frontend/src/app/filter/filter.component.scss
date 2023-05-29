@@ -5,3 +5,6 @@
 }
 
 
+:host ::ng-deep .custom-spinner circle{
+    stroke: white;
+}

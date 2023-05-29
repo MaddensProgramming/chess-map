@@ -9,6 +9,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class FilterComponent implements OnInit {
   expanded = true;
+  loading = true;
 
   filter: FormGroup;
   constructor(private service: ServiceService) {}
@@ -17,17 +18,13 @@ export class FilterComponent implements OnInit {
     this.service
       .getCurrentCityCountry()
       .subscribe((result) => this.filter.get('location').setValue(result));
-    this.updateTournaments();
+    this.service.$tournaments.subscribe(() => {
+      this.loading = false;
+    });
   }
   updateTournaments(): void {
-    this.service.getTournaments(
-      this.filter.value.startDate,
-      this.filter.value.endDate,
-      this.filter.value.minLength,
-      this.filter.value.maxLength,
-      this.filter.value.maxDistance,
-      this.service.$currentLocation.getValue()
-    );
+    this.loading = true;
+    this.service.getTournamentNoParmaters();
   }
 
   clearFilter() {

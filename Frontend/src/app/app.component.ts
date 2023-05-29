@@ -26,6 +26,7 @@ export class AppComponent implements OnInit {
     this.handleRouteEvents();
   }
   ngOnInit(): void {
+    this.service.getTournamentNoParmaters();
     this.service.getLocationBasedOnIp().subscribe((location) => {
       if (!this.gotGeoLocation) {
         this.service.$currentLocation.next({

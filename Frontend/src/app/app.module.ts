@@ -25,6 +25,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   ScreenTrackingService,
   UserTrackingService,
@@ -62,6 +63,7 @@ registerLocaleData(localeGb);
     FormsModule,
     ReactiveFormsModule,
     MatPaginatorModule,
+    MatProgressSpinnerModule,
     AngularFireModule.initializeApp(environment.firebase),
 
     provideFirebaseApp(() => initializeApp(environment.firebase)),

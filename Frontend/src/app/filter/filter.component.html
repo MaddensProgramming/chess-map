@@ -72,11 +72,17 @@
   >
     <button
       style="width: 150px; margin: auto 0"
-      mat-raised-button
       color="primary"
+      mat-raised-button
       (click)="updateTournaments()"
     >
-      Apply
+      <span>APPLY</span>
+      <span *ngIf="loading" style="position: absolute"
+        ><mat-spinner
+          class="custom-spinner"
+          style="height: 1rem; width: 3rem"
+        ></mat-spinner
+      ></span>
     </button>
     <button
       style="width: 150px; margin: auto 0"
