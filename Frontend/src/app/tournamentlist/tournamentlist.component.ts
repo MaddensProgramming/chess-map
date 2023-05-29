@@ -12,6 +12,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Tournament } from '../models/tournament-model';
 import { MatSort, Sort } from '@angular/material/sort';
 import haversine from 'haversine-distance';
+import { LatLngLiteral } from 'leaflet';
 
 declare const google: any;
 
@@ -60,6 +61,10 @@ export class TournamentlistComponent implements OnInit, AfterViewInit {
         return datasource;
       })
     );
+  }
+
+  getGoogleMapsUrl(location: LatLngLiteral): string {
+    return `https://www.google.com/maps/place/${location.lat},${location.lng}/@${location.lat},${location.lng},7z`;
   }
 
   constructor(private service: ServiceService) {}

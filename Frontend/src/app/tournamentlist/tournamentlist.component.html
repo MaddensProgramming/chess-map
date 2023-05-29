@@ -39,8 +39,8 @@
       <td mat-cell *matCellDef="let tournament">
         <span>{{ tournament.city }}, {{ tournament.country }}</span>
         <a
-          *ngIf="tournament.locationUrl"
-          href="{{ tournament.locationUrl }}"
+          *ngIf="tournament.location"
+          [href]="getGoogleMapsUrl(tournament.location)"
           target="_blank"
           rel="noopener noreferrer"
           ><mat-icon fontIcon="location_on" [color]="'primary'"></mat-icon

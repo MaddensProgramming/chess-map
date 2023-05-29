@@ -7,7 +7,6 @@ export interface Tournament {
   eventName: string;
   city: string;
   country: string;
-  locationUrl?: string;
   sourceUrl: string[];
   length: number;
   location?: LatLngLiteral;
@@ -15,6 +14,6 @@ export interface Tournament {
 }
 
 export interface TournamentByLocation {
-  locationUrl: string;
+  location: string;
   tournaments: Tournament[];
 }

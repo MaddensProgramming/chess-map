@@ -56,25 +56,23 @@ export class MapComponent implements AfterViewInit, OnInit {
     this.markers.length = 0;
 
     const groupedTournaments = this.groupByLocation(tournaments);
-    for (const locationUrl in groupedTournaments) {
-      if (locationUrl && locationUrl != 'undefined' && locationUrl != 'null') {
-        const tournaments: Tournament[] = groupedTournaments[locationUrl];
-        let title = this.generatePopup(tournaments);
-        const marker = L.marker(
-          [tournaments[0].location.lat, tournaments[0].location.lng],
-          {
-            title: `${tournaments.length} tournament${
-              tournaments.length > 1 ? 's' : ''
-            }`,
-          }
-        ).addTo(map);
-        this.markers.push(marker);
-        marker.on('click', () => {
-          infoWindow.setLatLng(marker.getLatLng());
-          infoWindow.setContent(title);
-          infoWindow.openOn(map);
-        });
-      }
+    for (const locationKey in groupedTournaments) {
+      const tournaments: Tournament[] = groupedTournaments[locationKey];
+      let title = this.generatePopup(tournaments);
+      const marker = L.marker(
+        [tournaments[0].location.lat, tournaments[0].location.lng],
+        {
+          title: `${tournaments.length} tournament${
+            tournaments.length > 1 ? 's' : ''
+          }`,
+        }
+      ).addTo(map);
+      this.markers.push(marker);
+      marker.on('click', () => {
+        infoWindow.setLatLng(marker.getLatLng());
+        infoWindow.setContent(title);
+        infoWindow.openOn(map);
+      });
     }
   }
 
@@ -132,13 +130,17 @@ export class MapComponent implements AfterViewInit, OnInit {
   private groupByLocation(tournaments: Tournament[]): {
     [key: string]: Tournament[];
   } {
+    const tournamentsWithLocation = tournaments.filter(
+      (tournament) => !!tournament.location
+    );
     const groupedTournaments: { [key: string]: Tournament[] } =
-      tournaments.reduce((acc, tournament) => {
-        const { locationUrl } = tournament;
-        if (acc[locationUrl]) {
-          acc[locationUrl].push(tournament);
+      tournamentsWithLocation.reduce((acc, tournament) => {
+        const locationKey =
+          tournament.location.lat + ',' + tournament.location.lng;
+        if (acc[locationKey]) {
+          acc[locationKey].push(tournament);
         } else {
-          acc[locationUrl] = [tournament];
+          acc[locationKey] = [tournament];
         }
         return acc;
       }, {});

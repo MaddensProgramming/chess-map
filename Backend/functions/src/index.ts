@@ -6,6 +6,8 @@ import axios from "axios";
 import * as functions from "firebase-functions";
 import latinize from "latinize";
 import cors from "cors";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const getCountryISO2 = require("country-iso-3-to-2");
 
 const uri = process.env["PASSWORD"] ?? "";
 
@@ -16,7 +18,6 @@ export interface Tournament extends Document {
 	eventName: string;
 	city: string;
 	country: string;
-	locationUrl?: string;
 	sourceUrl: string[];
 	length: number;
 	location?: {
@@ -42,7 +43,6 @@ const tournamentSchema = new Schema<Tournament>({
 	eventName: { type: String, required: true },
 	city: { type: String },
 	country: { type: String },
-	locationUrl: { type: String },
 	sourceUrl: { type: [String], required: true },
 	length: { type: Number, required: true },
 	location: {
@@ -165,6 +165,60 @@ app.get("/tournaments", async (req: Request, res: Response) => {
 	}
 });
 
+app.get("/newLocations", async (req: Request, res: Response) => {
+	try {
+		const geocodeapi = "ce6e7e63007c4968a25c23283bd6ffca";
+
+		const query: any = {};
+		query.location = null;
+		query.city = { $ne: "" };
+		query.country = { $ne: "" };
+		const tournaments = await TournamentModel.find(query);
+
+		const url = "https://api.geoapify.com/v1/geocode/search";
+		const results: { city: string; country: string }[] = [];
+
+		await Promise.all(
+			tournaments.map(async (tournament, index) => {
+				olympicToIsoCountryCode(tournament);
+
+				const lettercode = getCountryISO2(tournament.country);
+				if (!lettercode) {
+					console.log(tournament.country);
+				} else {
+					const params = {
+						format: "json",
+						city: tournament.city,
+						countrycodes: lettercode.toLowerCase(),
+						apiKey: geocodeapi,
+						limit: 1,
+					};
+					const delay = index * 200;
+					await new Promise((resolve) => setTimeout(resolve, delay));
+					const result = await axios.get(url, { params });
+					if (result.status === 200) {
+						if (result.data?.results?.length > 0) {
+							const coordinates = [result.data.results[0].lon, result.data.results[0].lat];
+							tournament.location = {
+								type: "Point",
+								coordinates,
+							};
+							await tournament.save();
+						} else {
+							results.push({ city: tournament.city, country: tournament.country });
+						}
+					}
+				}
+			}),
+		);
+
+		res.status(200).json({ results });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json(error);
+	}
+});
+
 const scrape = async () => {
 	getAllTournaments()
 		.then(async (tournaments) => {
@@ -197,6 +251,32 @@ const scrape = async () => {
 			console.error("Failed to fetch tournaments:", error);
 		});
 };
+
+function olympicToIsoCountryCode(tournament: mongoose.Document<unknown, object, Tournament> & Omit<Tournament & { _id: mongoose.Types.ObjectId }, never>) {
+	if (tournament.country === "ENG") tournament.country = "GBR";
+	if (tournament.country === "GRE") tournament.country = "GRC";
+	if (tournament.country === "PHI") tournament.country = "PHL";
+	if (tournament.country === "CRO") tournament.country = "HRV";
+	if (tournament.country === "GER") tournament.country = "DEU";
+	if (tournament.country === "NED") tournament.country = "NLD";
+	if (tournament.country === "SLO") tournament.country = "SVN";
+	if (tournament.country === "VIE") tournament.country = "VNM";
+	if (tournament.country === "SUI") tournament.country = "CHE";
+	if (tournament.country === "DEN") tournament.country = "DNK";
+	if (tournament.country === "POR") tournament.country = "PRT";
+	if (tournament.country === "BUL") tournament.country = "BGR";
+	if (tournament.country === "WLS") tournament.country = "GBR";
+	if (tournament.country === "SCO") tournament.country = "GBR";
+	if (tournament.country === "LAT") tournament.country = "LVA";
+	if (tournament.country === "MAS") tournament.country = "MYS";
+	if (tournament.country === "NCA") tournament.country = "NIC";
+	if (tournament.country === "CHI") tournament.country = "CHL";
+	if (tournament.country === "TPE") tournament.country = "TWN";
+	if (tournament.country === "RSA") tournament.country = "ZAF";
+	if (tournament.country === "GCI") tournament.country = "SVN";
+	if (tournament.country === "ISV") tournament.country = "VIR";
+	if (tournament.country === "INA") tournament.country = "IDN";
+}
 
 async function getAllTournaments(): Promise<Tournament[]> {
 	const chessCalendarURLs = generateChessCalendarURLs();
@@ -261,7 +341,6 @@ function generateMonth(html: string): Tournament[] {
 			city,
 			country,
 			sourceUrl: [sourceUrl],
-			locationUrl,
 			length,
 			location, // Assign the GeoJSON object to the location property
 		};
@@ -274,8 +353,7 @@ function generateMonth(html: string): Tournament[] {
 				oldEvent.sourceUrl.push(newEvent.sourceUrl[0] ?? "");
 			}
 
-			if (oldEvent && !oldEvent?.locationUrl) {
-				oldEvent.locationUrl = newEvent.locationUrl ?? undefined;
+			if (oldEvent && !oldEvent?.location) {
 				oldEvent.location = newEvent.location;
 			}
 		}
