@@ -32,6 +32,7 @@ import {
 import { provideFunctions, getFunctions } from '@angular/fire/functions';
 import { registerLocaleData } from '@angular/common';
 import localeGb from '@angular/common/locales/en-GB';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 registerLocaleData(localeGb);
 @NgModule({
@@ -40,6 +41,7 @@ registerLocaleData(localeGb);
     TournamentlistComponent,
     MapComponent,
     FilterComponent,
+    WelcomeComponent,
   ],
   imports: [
     BrowserModule,
