@@ -165,7 +165,7 @@ app.get("/tournaments", async (req: Request, res: Response) => {
 	}
 });
 
-app.get("/newLocations", async (req: Request, res: Response) => {
+const newLocations = async () => {
 	try {
 		const geocodeapi = "ce6e7e63007c4968a25c23283bd6ffca";
 
@@ -211,13 +211,10 @@ app.get("/newLocations", async (req: Request, res: Response) => {
 				}
 			}),
 		);
-
-		res.status(200).json({ results });
 	} catch (error) {
 		console.log(error);
-		res.status(500).json(error);
 	}
-});
+};
 
 const scrape = async () => {
 	getAllTournaments()
@@ -225,16 +222,28 @@ const scrape = async () => {
 			console.log(tournaments.length + " tournaments found");
 			let added = 0;
 			let updated = 0;
+			let ignored = 0;
 
 			// Loop through each tournament and update or insert it
 			for (const tournament of tournaments) {
 				try {
-					const existingTournament = await TournamentModel.exists({ eventName: tournament.eventName });
+					const existingTournament = await TournamentModel.find({ eventName: tournament.eventName });
 
-					if (existingTournament) {
-						// Tournament with the same eventName already exists, update it
-						await TournamentModel.findByIdAndUpdate(existingTournament._id, tournament);
-						updated++;
+					if (existingTournament && existingTournament.length > 0) {
+						if (existingTournament.length > 1) {
+							console.log("Check duplicate " + tournament.eventName);
+							continue;
+						}
+						if (JSON.stringify(existingTournament[0].sourceUrl) !== JSON.stringify(tournament.sourceUrl)) {
+							console.log("Updated: " + tournament.eventName);
+							console.log(JSON.stringify(existingTournament[0].sourceUrl));
+							console.log(JSON.stringify(tournament.sourceUrl));
+							existingTournament[0].sourceUrl = tournament.sourceUrl;
+							await existingTournament[0].save();
+							updated++;
+						} else {
+							ignored++;
+						}
 					} else {
 						// Tournament doesn't exist, create a new one
 						await TournamentModel.create(tournament);
@@ -245,7 +254,7 @@ const scrape = async () => {
 				}
 			}
 
-			console.log(`Tournaments uploaded successfully, ${added} added, ${updated} updated`);
+			console.log(`Tournaments uploaded successfully, ${added} added, ${updated} updated, ${ignored} already ok`);
 		})
 		.catch((error) => {
 			console.error("Failed to fetch tournaments:", error);
@@ -392,5 +401,5 @@ const runtimeOpts = {
 	memory: "1GB" as const,
 };
 exports.scrape = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(scrape);
-
+exports.newLocations = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(newLocations);
 exports.rest = functions.region("europe-west1").https.onRequest(app);
