@@ -39,6 +39,7 @@ export class ServiceService {
     maxLength: new FormControl<number | null>(null),
     maxDistance: new FormControl<number | null>(500),
     location: new FormControl<string | null>(null),
+    noLocationAllowed: new FormControl<boolean>(false),
   });
 
   public $currentLocation = new BehaviorSubject<LatLngLiteral>({
@@ -77,6 +78,7 @@ export class ServiceService {
       this.filter.value.minLength,
       this.filter.value.maxLength,
       this.filter.value.maxDistance,
+      this.filter.value.noLocationAllowed,
       this.$currentLocation.getValue()
     );
   }
@@ -87,6 +89,7 @@ export class ServiceService {
     minLength?: number,
     maxLength?: number,
     maxDistance?: number,
+    noLocationAllowed?: boolean,
     coordinates?: LatLngLiteral
   ): void {
     let params = new HttpParams();
@@ -109,6 +112,9 @@ export class ServiceService {
         `${coordinates.lng},${coordinates.lat}`
       );
     }
+    if (noLocationAllowed) {
+      params = params.set('noLocationAllowed', noLocationAllowed);
+    }
 
     this.http.get<any[]>(this.baseUrl, { params }).subscribe((tournaments) => {
       this.tournaments = tournaments.map((tournament) => ({
@@ -126,8 +132,9 @@ export class ServiceService {
     });
   }
 
-  getLocationBasedOnIp(): Observable<{ lat: number; lon: number }> {
-    const url = 'https://ip-api.com/json';
-    return this.http.get<{ lat: number; lon: number }>(url);
+  getLocationBasedOnIp(): Observable<{ longitude: number; latitude: number }> {
+    const url = 'https://freeipapi.com/api/json';
+    return this.http.get<{ longitude: number; latitude: number }>(url);
   }
+
 }

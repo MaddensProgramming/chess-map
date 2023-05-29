@@ -18,30 +18,39 @@
     </div>
   </mat-card-header>
   <mat-card-content *ngIf="expanded" [formGroup]="filter">
-    <mat-form-field>
-      <mat-label>Enter a date range</mat-label>
-      <mat-date-range-input [rangePicker]="picker">
-        <input
-          matStartDate
-          formControlName="startDate"
-          placeholder="Start date"
-        />
-        <input matEndDate formControlName="endDate" placeholder="End date" />
-      </mat-date-range-input>
-      <mat-datepicker-toggle
-        matIconSuffix
-        [for]="picker"
-      ></mat-datepicker-toggle>
-      <mat-date-range-picker #picker></mat-date-range-picker>
-      <mat-error
-        *ngIf="filter.controls['startDate'].hasError('matStartDateInvalid')"
-        >Invalid start date</mat-error
+    <div class="flex-vertical">
+      <mat-form-field>
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input
+            matStartDate
+            formControlName="startDate"
+            placeholder="Start date"
+          />
+          <input matEndDate formControlName="endDate" placeholder="End date" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+        <mat-error
+          *ngIf="filter.controls['startDate'].hasError('matStartDateInvalid')"
+          >Invalid start date</mat-error
+        >
+        <mat-error
+          *ngIf="filter.controls['endDate'].hasError('matEndDateInvalid')"
+          >Invalid end date</mat-error
+        >
+      </mat-form-field>
+
+      <mat-checkbox
+        style="margin-bottom: 1rem"
+        color="primary"
+        formControlName="noLocationAllowed"
+        >Include no location</mat-checkbox
       >
-      <mat-error
-        *ngIf="filter.controls['endDate'].hasError('matEndDateInvalid')"
-        >Invalid end date</mat-error
-      >
-    </mat-form-field>
+    </div>
     <div class="flex-vertical">
       <mat-form-field style="margin-right: 1rem">
         <mat-label>Min length</mat-label>

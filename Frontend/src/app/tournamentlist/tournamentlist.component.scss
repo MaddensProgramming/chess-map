@@ -2,3 +2,13 @@
   table-layout: auto;
   width: 100%;
 }
+
+@media (max-width: 600px) {
+  .container {
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%;
+    top: 0;
+    left: 0;
+  }
+}

@@ -110,7 +110,7 @@ app.post("/tournaments", async (req: Request, res: Response) => {
 
 app.get("/tournaments", async (req: Request, res: Response) => {
 	try {
-		const { startDate, endDate, minLength, maxLength, maxDistance, coordinates } = req.query;
+		const { startDate, endDate, minLength, maxLength, maxDistance, coordinates, noLocationAllowed } = req.query;
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const query: any = {};
@@ -140,10 +140,16 @@ app.get("/tournaments", async (req: Request, res: Response) => {
 			query.length = { ...(query.length || {}), $lte: parseInt(maxLength as string, 10) };
 		}
 
+		if (!noLocationAllowed) {
+			query.location = { $ne: null };
+		}
+
 		if (maxDistance && coordinates) {
-			// find tournaments with no specified location
-			query.location = null;
-			tournaments = tournaments.concat(await TournamentModel.find(query));
+			if (noLocationAllowed) {
+				// find tournaments with no specified location
+				query.location = null;
+				tournaments = tournaments.concat(await TournamentModel.find(query));
+			}
 
 			const [longitude, latitude] = (coordinates as string).split(",").map(parseFloat);
 			query.location = {

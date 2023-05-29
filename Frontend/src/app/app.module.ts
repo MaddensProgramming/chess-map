@@ -24,6 +24,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { environment } from '../environments/environment';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
@@ -64,6 +65,7 @@ registerLocaleData(localeGb);
     ReactiveFormsModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
+    MatCheckboxModule,
     AngularFireModule.initializeApp(environment.firebase),
 
     provideFirebaseApp(() => initializeApp(environment.firebase)),

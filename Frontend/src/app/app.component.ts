@@ -8,6 +8,7 @@ import {
   RouterState,
   ActivatedRoute,
 } from '@angular/router';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -27,14 +28,6 @@ export class AppComponent implements OnInit {
   }
   ngOnInit(): void {
     this.service.getTournamentNoParmaters();
-    this.service.getLocationBasedOnIp().subscribe((location) => {
-      if (!this.gotGeoLocation) {
-        this.service.$currentLocation.next({
-          lat: location.lat,
-          lng: location.lon,
-        });
-      }
-    });
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -45,6 +38,15 @@ export class AppComponent implements OnInit {
         this.gotGeoLocation = true;
       });
     }
+    if (!this.gotGeoLocation)
+      this.service.getLocationBasedOnIp().subscribe((location) => {
+        if (!this.gotGeoLocation) {
+          this.service.$currentLocation.next({
+            lat: location.latitude,
+            lng: location.longitude,
+          });
+        }
+      });
   }
 
   handleRouteEvents() {
