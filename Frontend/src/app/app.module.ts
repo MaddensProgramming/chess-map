@@ -63,6 +63,7 @@ registerLocaleData(localeGb);
     ReactiveFormsModule,
     MatPaginatorModule,
     AngularFireModule.initializeApp(environment.firebase),
+
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFunctions(() => getFunctions()),
   ],

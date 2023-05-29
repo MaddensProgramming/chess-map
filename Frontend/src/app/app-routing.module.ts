@@ -5,10 +5,14 @@ import { MapComponent } from './map/map.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 
 const routes: Routes = [
-  { path: 'tournamentlist', component: TournamentlistComponent },
-  { path: 'map', component: MapComponent },
-  { path: '', component: WelcomeComponent },
-  { path: '**', redirectTo: '' },
+  {
+    path: 'tournamentlist',
+    component: TournamentlistComponent,
+    data: { title: 'Tournamentlist' },
+  },
+  { path: 'map', component: MapComponent, data: { title: 'Map' } },
+  { path: '', component: WelcomeComponent, data: { title: 'Welcome' } },
+  { path: '**', redirectTo: '', data: { title: 'Not Found' } },
 ];
 
 @NgModule({
