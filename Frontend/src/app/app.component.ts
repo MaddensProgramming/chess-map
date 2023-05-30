@@ -8,7 +8,7 @@ import {
   RouterState,
   ActivatedRoute,
 } from '@angular/router';
-import { switchMap } from 'rxjs';
+import haversine from 'haversine-distance';
 
 @Component({
   selector: 'app-root',
@@ -31,20 +31,35 @@ export class AppComponent implements OnInit {
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
+        //if location moved more than 50 km we reload the map
+        const updateAfter =
+          haversine(this.service.$currentLocation.getValue(), position.coords) >
+          50000;
+
         this.service.$currentLocation.next({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         });
+
+        if (updateAfter) this.service.getTournamentNoParmaters();
+
         this.gotGeoLocation = true;
       });
     }
     if (!this.gotGeoLocation)
       this.service.getLocationBasedOnIp().subscribe((location) => {
         if (!this.gotGeoLocation) {
+          //if location moved more than 50 km we reload the map
+          const updateAfter =
+            haversine(this.service.$currentLocation.getValue(), location) >
+            50000;
+
           this.service.$currentLocation.next({
             lat: location.latitude,
             lng: location.longitude,
           });
+
+          if (updateAfter) this.service.getTournamentNoParmaters();
         }
       });
   }
