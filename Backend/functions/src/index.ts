@@ -6,10 +6,21 @@ import axios from "axios";
 import * as functions from "firebase-functions";
 import latinize from "latinize";
 import cors from "cors";
+import url from "url";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const getCountryISO2 = require("country-iso-3-to-2");
 
 const uri = process.env["PASSWORD"] ?? "";
+
+// Connect to MongoDB
+mongoose
+	.connect(uri)
+	.then(() => {
+		console.log("Connected to MongoDB");
+	})
+	.catch((error) => {
+		console.error("Failed to connect to MongoDB:", error);
+	});
 
 // Define the Tournament interface
 export interface Tournament extends Document {
@@ -25,16 +36,6 @@ export interface Tournament extends Document {
 		coordinates: number[];
 	};
 }
-
-// Connect to MongoDB
-mongoose
-	.connect(uri)
-	.then(() => {
-		console.log("Connected to MongoDB");
-	})
-	.catch((error) => {
-		console.error("Failed to connect to MongoDB:", error);
-	});
 
 // Create the Tournament schema
 const tournamentSchema = new Schema<Tournament>({
@@ -168,6 +169,46 @@ app.get("/tournaments", async (req: Request, res: Response) => {
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ error: "Failed to fetch tournaments" });
+	}
+});
+
+app.get("/usedUrls", async (req: Request, res: Response) => {
+	try {
+		const tournaments = await TournamentModel.find({});
+
+		const urlCountMap = new Map<string, number>();
+		const uniqueUrlCountMap = new Map<string, number>();
+
+		for (const tournament of tournaments) {
+			for (const sourceUrl of tournament.sourceUrl) {
+				const hostname = url.parse(sourceUrl).hostname || "";
+
+				// Increment the total count for this domain
+				urlCountMap.set(hostname, (urlCountMap.get(hostname) || 0) + 1);
+
+				// If this is the only source URL for this tournament, increment the unique count
+				if (tournament.sourceUrl.length === 1) {
+					uniqueUrlCountMap.set(hostname, (uniqueUrlCountMap.get(hostname) || 0) + 1);
+				}
+			}
+		}
+
+		// Build arrays of results
+		const totalCountResults = Array.from(urlCountMap).map(([hostname, count]) => ({ hostname, count }));
+		const uniqueCountResults = Array.from(uniqueUrlCountMap).map(([hostname, count]) => ({ hostname, count }));
+
+		// Sort results by count
+		totalCountResults.sort((a, b) => b.count - a.count);
+		uniqueCountResults.sort((a, b) => b.count - a.count);
+
+		// Return results as JSON
+		res.json({
+			totalCounts: totalCountResults,
+			uniqueCounts: uniqueCountResults,
+		});
+	} catch (error) {
+		console.error("Failed to fetch tournaments:", error);
+		res.status(500).json({ error: "An error occurred while fetching data." });
 	}
 });
 

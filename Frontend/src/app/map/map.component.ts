@@ -127,43 +127,41 @@ export class MapComponent implements AfterViewInit, OnInit {
     return title;
   }
 
-  private groupByLocation(tournaments: Tournament[]): {
-    [key: string]: Tournament[];
-  } {
+  private groupByLocation(
+    tournaments: Tournament[]
+  ): Map<string, Tournament[]> {
     const tournamentsWithLocation = tournaments.filter(
       (tournament) => !!tournament.location
     );
-    const groupedTournaments: { [key: string]: Tournament[] } =
-      tournamentsWithLocation.reduce((acc, tournament) => {
-        const locationKey =
-          tournament.location.lat + ',' + tournament.location.lng;
-        if (acc[locationKey]) {
-          acc[locationKey].push(tournament);
-        } else {
-          acc[locationKey] = [tournament];
-        }
-        return acc;
-      }, {});
+    const groupedTournaments = new Map<string, Tournament[]>();
+
+    tournamentsWithLocation.forEach((tournament) => {
+      const locationKey =
+        tournament.location.lat + ',' + tournament.location.lng;
+      if (groupedTournaments.has(locationKey)) {
+        groupedTournaments.get(locationKey).push(tournament);
+      } else {
+        groupedTournaments.set(locationKey, [tournament]);
+      }
+    });
 
     return groupedTournaments;
   }
-  private groupByDates(tournaments: Tournament[]): {
-    [key: string]: Tournament[];
-  } {
-    const groupedTournaments: { [key: string]: Tournament[] } =
-      tournaments.reduce((acc, tournament) => {
-        const dateString = tournament.startDate
-          ? tournament.startDate.toDateString()
-          : 'null' + tournament.endDate
-          ? tournament.endDate.toDateString()
-          : 'null';
-        if (acc[dateString]) {
-          acc[dateString].push(tournament);
-        } else {
-          acc[dateString] = [tournament];
-        }
-        return acc;
-      }, {});
+
+  private groupByDates(tournaments: Tournament[]): Map<string, Tournament[]> {
+    const groupedTournaments = new Map<string, Tournament[]>();
+
+    tournaments.forEach((tournament) => {
+      const startDate = tournament.startDate?.toDateString() || 'null';
+      const endDate = tournament.endDate?.toDateString() || 'null';
+      const dateString = `${startDate}-${endDate}`;
+
+      if (groupedTournaments.has(dateString)) {
+        groupedTournaments.get(dateString).push(tournament);
+      } else {
+        groupedTournaments.set(dateString, [tournament]);
+      }
+    });
 
     return groupedTournaments;
   }
