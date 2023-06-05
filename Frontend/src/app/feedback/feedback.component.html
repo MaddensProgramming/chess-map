@@ -1,0 +1,37 @@
+<mat-dialog-content class="feedback-form">
+  <h2 class="title">Feedback</h2>
+  <button mat-icon-button class="close-button" (click)="onCloseClick()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <form [formGroup]="feedbackForm" (ngSubmit)="onSubmit()" >
+    <mat-form-field class="form-field">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" required>
+    </mat-form-field>
+
+    <mat-form-field class="form-field">
+      <mat-label>Contactinfo</mat-label>
+      <input matInput formControlName="contactInfo">
+    </mat-form-field>
+
+    <mat-form-field class="form-field">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type">
+        <mat-option value="bug">Bug</mat-option>
+        <mat-option value="feature">Feature</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="form-field" >
+      <mat-label>Description</mat-label>
+      <textarea style="height: 8rem;" matInput formControlName="description" required></textarea>
+    </mat-form-field>
+
+    <input type="file" class="form-field" (change)="onFileSelected($event)" />    
+    <button mat-raised-button color="primary" style="margin-top: 2rem;"  type="submit" [disabled]="!feedbackForm.valid">Submit</button>
+
+  </form>
+</mat-dialog-content>
+
+  

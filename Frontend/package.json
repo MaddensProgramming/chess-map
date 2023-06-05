@@ -25,6 +25,7 @@
     "@types/googlemaps": "^3.43.3",
     "cheerio": "^1.0.0-rc.12",
     "date-fns": "^2.29.3",
+    "firebase": "^9.22.1",
     "firebase-tools": "^12.2.1",
     "geofire-common": "^6.0.0",
     "haversine-distance": "^1.2.1",

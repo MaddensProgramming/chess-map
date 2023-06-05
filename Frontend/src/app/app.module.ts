@@ -9,6 +9,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MapComponent } from './map/map.component';
 import { FilterComponent } from './filter/filter.component';
 import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
+import { AngularFireStorageModule } from '@angular/fire/compat/storage';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +39,8 @@ import { provideFunctions, getFunctions } from '@angular/fire/functions';
 import { registerLocaleData } from '@angular/common';
 import localeGb from '@angular/common/locales/en-GB';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { FeedbackComponent } from './feedback/feedback.component';
+import { MatSelectModule } from '@angular/material/select';
 
 registerLocaleData(localeGb);
 @NgModule({
@@ -44,6 +50,7 @@ registerLocaleData(localeGb);
     MapComponent,
     FilterComponent,
     WelcomeComponent,
+    FeedbackComponent,
   ],
   imports: [
     BrowserModule,
@@ -66,9 +73,13 @@ registerLocaleData(localeGb);
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatCheckboxModule,
+    MatSelectModule,
+    MatDialogModule,
+    MatSnackBarModule,
     AngularFireModule.initializeApp(environment.firebase),
-
     provideFirebaseApp(() => initializeApp(environment.firebase)),
+    AngularFirestoreModule, // firestore
+    AngularFireStorageModule, // storage
     provideFunctions(() => getFunctions()),
   ],
   providers: [

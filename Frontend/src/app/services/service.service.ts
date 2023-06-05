@@ -1,9 +1,8 @@
-import { Injectable, inject } from '@angular/core';
-import cheerio from 'cheerio';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, switchMap, tap } from 'rxjs';
 
-import { Tournament } from './models/tournament-model';
+import { Tournament } from '../models/tournament-model';
 import { BehaviorSubject } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { LatLngLiteral } from 'leaflet';
@@ -136,5 +135,4 @@ export class ServiceService {
     const url = 'https://freeipapi.com/api/json';
     return this.http.get<{ longitude: number; latitude: number }>(url);
   }
-
 }

@@ -5,9 +5,9 @@
       <a mat-list-item routerLink="/tournamentlist" routerLinkActive="active">
         <mat-icon fontIcon="event_note"></mat-icon>
       </a>
-      <a mat-list-item routerLink="/map"
-        ><mat-icon fontIcon="explore"></mat-icon
+      <a mat-list-item routerLink="/map" ><mat-icon fontIcon="explore"></mat-icon
       ></a>
+      <a mat-list-item (click)="openFeedbackDialog()"><mat-icon fontIcon="sms_failed"></mat-icon></a>     
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>

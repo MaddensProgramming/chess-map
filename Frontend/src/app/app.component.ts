@@ -1,7 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { ServiceService } from './service.service';
+import { ServiceService } from './services/service.service';
 import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
+import { MatDialog } from '@angular/material/dialog';
 import {
   Router,
   NavigationEnd,
@@ -9,6 +10,7 @@ import {
   ActivatedRoute,
 } from '@angular/router';
 import haversine from 'haversine-distance';
+import { FeedbackComponent } from './feedback/feedback.component';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +24,7 @@ export class AppComponent implements OnInit {
     private service: ServiceService,
     private router: Router,
     private titleService: Title,
+    public dialog: MatDialog,
     @Inject(DOCUMENT) private document: Document
   ) {
     this.handleRouteEvents();
@@ -90,5 +93,11 @@ export class AppComponent implements OnInit {
       data.push(...this.getTitle(state, parent.firstChild));
     }
     return data;
+  }
+
+  openFeedbackDialog(): void {
+    const dialogRef = this.dialog.open(FeedbackComponent, {
+      width: '500px',
+    });
   }
 }

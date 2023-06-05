@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { Tournament } from '../models/tournament-model';
-import { ServiceService } from '../service.service';
+import { ServiceService } from '../services/service.service';
 import { LatLngExpression } from 'leaflet';
 
 @Component({
@@ -56,14 +56,14 @@ export class MapComponent implements AfterViewInit, OnInit {
     this.markers.length = 0;
 
     const groupedTournaments = this.groupByLocation(tournaments);
-    for (const locationKey in groupedTournaments) {
-      const tournaments: Tournament[] = groupedTournaments[locationKey];
-      let title = this.generatePopup(tournaments);
+
+    for (const tournamentsArray of groupedTournaments.values()) {
+      let title = this.generatePopup(tournamentsArray);
       const marker = L.marker(
-        [tournaments[0].location.lat, tournaments[0].location.lng],
+        [tournamentsArray[0].location.lat, tournamentsArray[0].location.lng],
         {
-          title: `${tournaments.length} tournament${
-            tournaments.length > 1 ? 's' : ''
+          title: `${tournamentsArray.length} tournament${
+            tournamentsArray.length > 1 ? 's' : ''
           }`,
         }
       ).addTo(map);
@@ -107,12 +107,14 @@ export class MapComponent implements AfterViewInit, OnInit {
 
   private generatePopup(tournaments: Tournament[]): string {
     let title = '';
-    const groupedByDates = this.groupByDates(tournaments);
-    for (const date in groupedByDates) {
-      const dateGroup = groupedByDates[date];
-      title += `<strong>${dateGroup[0].startDate.toDateString()}${
-        dateGroup[0].endDate ? '-' + dateGroup[0].endDate.toDateString() : ''
-      }</strong>`;
+    const groupedByDates: Map<string, Tournament[]> =
+      this.groupByDates(tournaments);
+    for (const dateGroup of groupedByDates.values()) {
+      const startDate = dateGroup[0].startDate.toDateString();
+      const endDate = dateGroup[0].endDate
+        ? '-' + dateGroup[0].endDate.toDateString()
+        : '';
+      title += `<strong>${startDate}${endDate}</strong>`;
       dateGroup.forEach((tournament) => {
         title += `<div>${tournament.eventName}`;
         for (let i = 0; i < tournament.sourceUrl.length; i++) {
