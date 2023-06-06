@@ -41,7 +41,7 @@ const logAction = async (action: string, tournament: Tournament, existingTournam
     action,
     eventName: tournament.eventName,
     newSourceUrl: JSON.stringify(tournament.sourceUrl),
-    previousSourceUrl: action === "Updated" ? JSON.stringify(existingTournament?.[0]?.sourceUrl) : undefined,
+    previousSourceUrl: action === "Updated" ? JSON.stringify(existingTournament?.[0]?.sourceUrl) : null,
     timestamp: new Date(),
   };
   changeLogs.push(logData);
