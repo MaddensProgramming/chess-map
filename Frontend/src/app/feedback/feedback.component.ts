@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { FeedbackService } from '../services/feedback.service';
+import { FirebaseService } from '../services/firebase.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
@@ -13,7 +13,7 @@ export class FeedbackComponent implements OnInit {
   selectedFile: File = null;
 
   constructor(
-    private feedbackService: FeedbackService,
+    private feedbackService: FirebaseService,
     public dialogRef: MatDialogRef<FeedbackComponent>,
     private snackBar: MatSnackBar
   ) {}

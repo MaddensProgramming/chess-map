@@ -131,6 +131,10 @@ export class ServiceService {
     });
   }
 
+  updateTournament(name: string, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/${name}`, data); // replace with your API URL
+  }
+
   getLocationBasedOnIp(): Observable<{ longitude: number; latitude: number }> {
     const url = 'https://freeipapi.com/api/json';
     return this.http.get<{ longitude: number; latitude: number }>(url);

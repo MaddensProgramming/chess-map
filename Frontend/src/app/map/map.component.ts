@@ -1,8 +1,16 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  Renderer2,
+} from '@angular/core';
 import * as L from 'leaflet';
 import { Tournament } from '../models/tournament-model';
 import { ServiceService } from '../services/service.service';
 import { LatLngExpression } from 'leaflet';
+import { MatDialog } from '@angular/material/dialog';
+import { EditTournamentComponent } from '../edit-tournament/edit-tournament.component';
 
 @Component({
   selector: 'app-map',
@@ -10,7 +18,13 @@ import { LatLngExpression } from 'leaflet';
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements AfterViewInit, OnInit {
-  constructor(private service: ServiceService) {}
+  constructor(
+    private service: ServiceService,
+    private dialog: MatDialog,
+    private renderer: Renderer2,
+    private el: ElementRef
+  ) {}
+
   ngOnInit(): void {
     this.service.$currentLocation.subscribe((location) => {
       if (
@@ -47,6 +61,16 @@ export class MapComponent implements AfterViewInit, OnInit {
     this.addCurrentLocationIcon(map, infoWindow);
   }
 
+  private addClickToEdit(): void {
+    const editIcons = this.el.nativeElement.querySelectorAll('.edit-icon');
+    editIcons.forEach((icon) => {
+      this.renderer.listen(icon, 'click', () => {
+        const tournamentTitle = icon.parentElement.firstChild.innerText;
+        this.openTournamentDialog(tournamentTitle);
+      });
+    });
+  }
+
   private addMarkers(
     tournaments: Tournament[],
     map: L.Map,
@@ -72,6 +96,7 @@ export class MapComponent implements AfterViewInit, OnInit {
         infoWindow.setLatLng(marker.getLatLng());
         infoWindow.setContent(title);
         infoWindow.openOn(map);
+        this.addClickToEdit();
       });
     }
   }
@@ -116,7 +141,7 @@ export class MapComponent implements AfterViewInit, OnInit {
         : '';
       title += `<strong>${startDate}${endDate}</strong>`;
       dateGroup.forEach((tournament) => {
-        title += `<div>${tournament.eventName}`;
+        title += `<div><span>${tournament.eventName}</span><span class="edit-icon">✎</span> `;
         for (let i = 0; i < tournament.sourceUrl.length; i++) {
           title += `<sup><a href="${
             tournament.sourceUrl[i]
@@ -166,5 +191,16 @@ export class MapComponent implements AfterViewInit, OnInit {
     });
 
     return groupedTournaments;
+  }
+
+  private openTournamentDialog(tournamentTitle: string): void {
+    console.log(tournamentTitle);
+    const tournament = this.service.tournaments.find(
+      (t) => t.eventName === tournamentTitle
+    );
+    const dialogRef = this.dialog.open(EditTournamentComponent, {
+      width: '300px',
+      data: { tournament },
+    });
   }
 }

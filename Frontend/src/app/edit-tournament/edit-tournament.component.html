@@ -1,0 +1,33 @@
+<form [formGroup]="tournamentForm" (ngSubmit)="onSubmit()" class="edit-tournament-form">
+    <h2 mat-dialog-title>Edit Tournament</h2>    
+  
+    <mat-dialog-content>
+    <p style="margin-bottom: 2rem;">This info will not be changed immediatly to prevent incorrect submissions, after verification at night it will be changed</p>
+      <mat-form-field appearance="fill">
+        <mat-label>Address</mat-label>
+        <input matInput formControlName="address">
+        <mat-error *ngIf="tournamentForm.get('address').invalid">Please enter a valid address.</mat-error>
+      </mat-form-field>
+  
+      <mat-form-field appearance="fill">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+        <mat-error *ngIf="tournamentForm.get('startDate').invalid">Please enter a valid start date.</mat-error>
+      </mat-form-field>
+  
+      <mat-form-field appearance="fill">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+        <mat-error *ngIf="tournamentForm.get('endDate').invalid">Please enter a valid end date.</mat-error>
+      </mat-form-field>
+    </mat-dialog-content>
+  
+    <mat-dialog-actions>
+      <button mat-raised-button style="margin:auto" color="warn" (click)="onNoClick()">Cancel</button>
+      <button mat-raised-button style="margin:auto"  color="primary" type="submit">Save</button>
+    </mat-dialog-actions>
+  </form>

@@ -1,16 +1,31 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import {
+  AngularFirestore,
+  DocumentReference,
+} from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
-export class FeedbackService {
+export class FirebaseService {
   constructor(
     private firestore: AngularFirestore,
     private storage: AngularFireStorage
   ) {}
+
+  createTournamentCorrection(
+    eventName: string,
+    value: any
+  ): Promise<DocumentReference> {
+    return this.firestore.collection('corrections').add({
+      eventName,
+      value,
+      timestamp: new Date(), // add server-side timestamp
+    });
+  }
 
   sendFeedback(feedback, file: File) {
     if (file) {

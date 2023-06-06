@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ServiceService } from '../services/service.service';
 import { Observable, map, of } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
@@ -13,17 +7,17 @@ import { Tournament } from '../models/tournament-model';
 import { MatSort, Sort } from '@angular/material/sort';
 import haversine from 'haversine-distance';
 import { LatLngLiteral } from 'leaflet';
-
-declare const google: any;
+import { MatDialog } from '@angular/material/dialog';
+import { EditTournamentComponent } from '../edit-tournament/edit-tournament.component';
 
 @Component({
   selector: 'app-tournamentlist',
   templateUrl: './tournamentlist.component.html',
   styleUrls: ['./tournamentlist.component.scss'],
 })
-export class TournamentlistComponent implements OnInit, AfterViewInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+export class TournamentlistComponent implements AfterViewInit {
+  @ViewChild(MatPaginator) private paginator: MatPaginator;
+  @ViewChild(MatSort) private sort: MatSort;
   public calendar: Observable<MatTableDataSource<Tournament>>;
 
   displayedColumns: string[] = [
@@ -32,22 +26,14 @@ export class TournamentlistComponent implements OnInit, AfterViewInit {
     'startDate',
     'endDate',
     'distance',
+    'edit',
   ];
 
-  ngOnInit(): void {}
+  constructor(private service: ServiceService, private dialog: MatDialog) {}
   ngAfterViewInit(): void {
     this.calendar = this.service.$tournaments.pipe(
       map((tournaments) => {
-        const withDistance = tournaments.map((tournament) => {
-          if (tournament.location)
-            tournament.distance = Math.round(
-              haversine(
-                tournament.location,
-                this.service.$currentLocation.getValue()
-              ) / 1000
-            );
-          return tournament;
-        });
+        const withDistance = this.calculateDistances(tournaments);
 
         const datasource = new MatTableDataSource<Tournament>(withDistance);
         datasource.paginator = this.paginator;
@@ -63,9 +49,26 @@ export class TournamentlistComponent implements OnInit, AfterViewInit {
     );
   }
 
-  getGoogleMapsUrl(location: LatLngLiteral): string {
+  public getGoogleMapsUrl(location: LatLngLiteral): string {
     return `https://www.google.com/maps/place/${location.lat},${location.lng}/@${location.lat},${location.lng},7z`;
   }
 
-  constructor(private service: ServiceService) {}
+  private calculateDistances(tournaments: Tournament[]): Tournament[] {
+    return tournaments.map((tournament) => {
+      if (tournament.location)
+        tournament.distance = Math.round(
+          haversine(
+            tournament.location,
+            this.service.$currentLocation.getValue()
+          ) / 1000
+        );
+      return tournament;
+    });
+  }
+  openDialog(tournament: Tournament): void {
+    const dialogRef = this.dialog.open(EditTournamentComponent, {
+      width: '300px',
+      data: { tournament },
+    });
+  }
 }

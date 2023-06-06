@@ -41,6 +41,7 @@ import localeGb from '@angular/common/locales/en-GB';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { MatSelectModule } from '@angular/material/select';
+import { EditTournamentComponent } from './edit-tournament/edit-tournament.component';
 
 registerLocaleData(localeGb);
 @NgModule({
@@ -51,6 +52,7 @@ registerLocaleData(localeGb);
     FilterComponent,
     WelcomeComponent,
     FeedbackComponent,
+    EditTournamentComponent,
   ],
   imports: [
     BrowserModule,
